@@ -25,11 +25,52 @@ use Svbk\WP\Helpers\Mailing\Mandrill;
 function svbk_mandrill_emails_init() {
 	load_plugin_textdomain( 'svbk-mandrill-emails', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
 	
-	remove_action( 'rcp_insert_payment', 'rcp_email_payment_received', 10 );
-	
+	remove_action( 'rcp_set_status', 'rcp_email_on_activation', 11, 2 );
 }
 
 add_action( 'plugins_loaded', 'svbk_mandrill_emails_init' );
+
+
+function svbk_rcp_email_send( $template, $rcp_member, $merge_tags = array() ){
+	
+		$mandrill = new Mandrill( env('MD_APIKEY') );
+	
+		$member_merge_tags = Mandrill::castMergeTags( array(
+			'fname' => $rcp_member->first_name ,
+			'lname' => $rcp_member->last_name,
+			'email' => $rcp_member->user_email,
+			'company_name' => $rcp_member->company_name,
+			'billing_address' => $rcp_member->billing_address,
+			'biling_city' => $rcp_member->biling_city,
+			'billing_state' => $rcp_member->billing_state,
+			'billing_postal_code' => $rcp_member->billing_postal_code,
+			'billing_country' => $rcp_member->billing_country,	
+		), 'MEMBER_' );
+		
+		$results = $mandrill->messages->sendTemplate( 
+			$template, 
+			array(), 
+			array_merge_recursive(
+				Mandrill::$messageDefaults,
+				array(
+					'text' => '',
+					'to' => array(
+						array(
+							'email' => $rcp_member->user_email,
+							'name' => $rcp_member->first_name . ' ' . $rcp_member->last_name,
+							'type' => 'to',
+						),
+					),
+					'global_merge_vars' => array_merge( $member_merge_tags, $merge_tags ),
+					'merge' => true,
+					'tags' => array(
+						'subscription-activation-request'
+					),
+				)
+			)
+		);	
+
+}
 
 function svbk_rcp_activate_subscription_email( $subscription_id, $member_id, $rcp_member ) {
 
@@ -50,22 +91,7 @@ function svbk_rcp_activate_subscription_email( $subscription_id, $member_id, $rc
 			break;				
 	}
 	
-
-	$mandrill = new Mandrill( env('MD_APIKEY') );
-
 	if ( $template ) {
-		
-		$member_merge_tags = Mandrill::castMergeTags( array(
-			'fname' => $rcp_member->first_name ,
-			'lname' => $rcp_member->last_name,
-			'email' => $rcp_member->user_email,
-			'company_name' => $rcp_member->company_name,
-			'billing_address' => $rcp_member->billing_address,
-			'biling_city' => $rcp_member->biling_city,
-			'billing_state' => $rcp_member->billing_state,
-			'billing_postal_code' => $rcp_member->billing_postal_code,
-			'billing_country' => $rcp_member->billing_country,	
-		), 'MEMBER_' );
 		
 		$rcp_levels  = new RCP_Levels;
 		$rcp_level  = $rcp_levels->get_level( $subscription_id );		
@@ -74,30 +100,11 @@ function svbk_rcp_activate_subscription_email( $subscription_id, $member_id, $rc
 			'name' => $rcp_level->name,
 			'description' => $rcp_level->description,
 			'price' => $rcp_level->price
-		), 'SUBSCR_' );		
+		), 'SUBSCR_' );			
 		
-		$results = $mandrill->messages->sendTemplate( 
-			$template, 
-			array(), 
-			array_merge_recursive(
-				Mandrill::$messageDefaults,
-				array(
-					'text' => '',
-					'to' => array(
-						array(
-							'email' => $rcp_member->user_email,
-							'name' => $rcp_member->first_name . ' ' . $rcp_member->last_name,
-							'type' => 'to',
-						),
-					),
-					'global_merge_vars' => array_merge( $member_merge_tags, $level_merge_tags ),
-					'merge' => true,
-					'tags' => array(
-						'subscription-activation-request'
-					),
-				)
-			)
-		);
+		
+		svbk_rcp_email_send( $template, $rcp_member, $level_merge_tags);
+		
 	} else {
 		return;
 	}
@@ -105,3 +112,28 @@ function svbk_rcp_activate_subscription_email( $subscription_id, $member_id, $rc
 }
 
 add_action( 'rcp_member_post_set_subscription_id', 'svbk_rcp_activate_subscription_email', 8, 3 );
+
+
+/**
+ * Triggers the activation notice when an account is marked as active.
+ *
+ * @param string $status  User's status.
+ * @param int    $user_id ID of the user to email.
+ *
+ * @access  public
+ * @since   2.1
+ * @return  void
+ */
+function svbk_rcp_email_on_activation( $user_id, $old_status, $rcp_member ) {
+	
+		global $rcp_options;
+	
+		$merge_tags = Mandrill::castMergeTags(
+			array(
+				'private_area_url' => get_permalink( $rcp_options['registration_page'] ),
+			) 
+		);
+	
+		svbk_rcp_email_send( 'vivere-di-turismo-credenziali-area-riservata', $rcp_member, $merge_tags);
+}
+add_action( 'rcp_set_status_active', 'svbk_rcp_email_on_activation', 11, 4 );
