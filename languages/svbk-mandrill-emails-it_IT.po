@@ -1,0 +1,30 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Mandrill Transactional Emails\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-08-09 16:14+0000\n"
+"PO-Revision-Date: 2017-08-09 16:15+0000\n"
+"Last-Translator: silverbackstudio <webmaster@silverbackstudio.it>\n"
+"Language-Team: Italian\n"
+"Language: it-IT\n"
+"Plural-Forms: nplurals=2; plural=n != 1\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco - https://localise.biz/"
+
+#. Name of the plugin
+msgid "Mandrill Transactional Emails"
+msgstr "Email Transazionali con Template Mandrill"
+
+#. Description of the plugin
+msgid "Send plugins transactional email with Mandrill"
+msgstr "Invia le email transazionali attraverso template di Mandrill"
+
+#. Author of the plugin
+msgid "Silverback Studio"
+msgstr "Silverback Studio"
+
+#. Author URI of the plugin
+msgid "http://www.silverbackstudio.it/"
+msgstr "http://www.silverbackstudio.it/"
