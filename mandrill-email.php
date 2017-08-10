@@ -76,6 +76,12 @@ function svbk_rcp_activate_subscription_email( $subscription_id, $member_id, $rc
 
 	global $rcp_levels_db;
 
+	$status = $rcp_member->get_status();
+
+	if ( 'active' !== $status ) {
+		return;
+	}
+
 	switch( $subscription_id ) {
 		case 1: 
 			$template = 'vivere-di-turismo-biglietto-vdt-live';	
@@ -127,13 +133,22 @@ add_action( 'rcp_member_post_set_subscription_id', 'svbk_rcp_activate_subscripti
 function svbk_rcp_email_on_activation( $user_id, $old_status, $rcp_member ) {
 	
 		global $rcp_options;
+
+		if ( ( 'pending' === $old_status ) ) {	
+			
+			$merge_tags = Mandrill::castMergeTags(
+				array(
+					'private_area_url' => get_permalink( $rcp_options['registration_page'] ),
+				) 
+			);
 	
-		$merge_tags = Mandrill::castMergeTags(
-			array(
-				'private_area_url' => get_permalink( $rcp_options['registration_page'] ),
-			) 
-		);
-	
-		svbk_rcp_email_send( 'vivere-di-turismo-credenziali-area-riservata', $rcp_member, $merge_tags);
+			svbk_rcp_email_send( 'vivere-di-turismo-credenziali-area-riservata', $rcp_member, $merge_tags);
+		}
+		
+		if ( ( 'pending' === $old_status ) ||  ( 'free' === $old_status ) ) {
+			$subscription_id = $rcp_member->get_subscription_id();
+			svbk_rcp_activate_subscription_email( $subscription_id, $user_id, $rcp_member );		
+		}
+		
 }
 add_action( 'rcp_set_status_active', 'svbk_rcp_email_on_activation', 11, 4 );
