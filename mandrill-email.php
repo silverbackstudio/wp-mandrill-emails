@@ -60,6 +60,21 @@ function svbk_rcp_email_send( $template, $rcp_member, $merge_tags = array() ){
 							'name' => $rcp_member->first_name . ' ' . $rcp_member->last_name,
 							'type' => 'to',
 						),
+						array(
+							'email' => 'danilo.b@viverediturismo.com',
+							'name' => 'Danilo Beltrante',
+							'type' => 'bcc',
+						),
+						array(
+							'email' => 'amministrazione@locobel.com',
+							'name' => 'Amministrazione Locobel',
+							'type' => 'bcc',
+						),	
+						array(
+							'email' => 'info@silverbackstudio.it',
+							'name' => 'Info Silverbackstudio',
+							'type' => 'bcc',
+						),							
 					),
 					'global_merge_vars' => array_merge( $member_merge_tags, $merge_tags ),
 					'merge' => true,
