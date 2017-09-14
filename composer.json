@@ -18,5 +18,8 @@
     "require-dev": {
         "wimg/php-compatibility": "^7.1",
         "squizlabs/php_codesniffer": "^2.0"
-    }
+    },
+    "autoload": {
+        "psr-4": {"Svbk\\WP\\Plugins\\Mandrill\\": "src/"}
+    }     
 }
