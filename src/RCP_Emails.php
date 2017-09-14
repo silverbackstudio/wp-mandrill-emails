@@ -157,7 +157,7 @@ class RCP_Emails extends \RCP_Emails {
 				var_dump($this->member_id);
                 $merge_tags[ $email_tag['tag'] ] = array(
         			'name' => strtoupper( $email_tag['tag'] ),
-        			'content' => call_user_func( $email_tag['function'], $this->member_id, $this->payment_id, $email_tag ),
+        			'content' => call_user_func( $email_tag['function'], $this->member_id, $this->payment_id, $email_tag['tag'] ),
     			);		    
 			}
 		}
