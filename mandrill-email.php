@@ -41,9 +41,11 @@ add_action( 'plugins_loaded', 'svbk_mandrill_emails_init' );
  * @since   2.1
  * @return  void
  */
-function svbk_rcp_email_on_registration( $rcp_member ) {
+function svbk_rcp_email_on_registration( $user_id ) {
 	
 	global $rcp_options;
+
+	$rcp_member = new RCP_Member( $user_id );
 
 	$emails = new RCP_Mandrill_Emails();
 	$emails->member_id = $rcp_member->ID;
@@ -62,20 +64,8 @@ function svbk_rcp_email_on_registration( $rcp_member ) {
 		rcp_log( sprintf( '[Mandrill Emails] Registration email not sent to user %s - template %s is empty or invalid.', $rcp_member->first_name . ' ' . $rcp_member->last_name, $template ) );
 	}
 	
-	$admin_emails  = ! empty( $rcp_options['admin_notice_emails'] ) ? $rcp_options['admin_notice_emails'] : get_option('admin_email');
-	$admin_emails  = apply_filters( 'rcp_admin_notice_emails', explode( ',', $admin_emails ) );
-	$admin_emails  = array_map( 'sanitize_email', $admin_emails );
-	
-	$admin_template = isset($rcp_options['mandrill_template_admin_user_reg']) ? $rcp_options['mandrill_template_admin_user_reg'] : '';
-
-	if( $admin_template && $emails->sendTemplate( $admin_template, $admin_emails ) ) {
-		rcp_log( sprintf( '[Mandrill Emails] Registration email for %s sent to admins. Template : %s', $rcp_member->first_name . ' ' . $rcp_member->last_name, $admin_template ) );
-	} else {
-		rcp_log( sprintf( '[Mandrill Emails] Registration email for %s - mandrill template %s is empty or invalid.', $rcp_member->first_name . ' ' . $rcp_member->last_name, $admin_template ) );
-	}	
-
 }
-add_action( 'rcp_successful_registration', 'svbk_rcp_email_on_registration', 11, 4 );
+add_action( 'user_register', 'svbk_rcp_email_on_registration', 99, 1);
 
 
 /**
@@ -326,20 +316,27 @@ function svbk_rcp_email_on_activation( $status, $user_id ) {
 add_action( 'rcp_set_status', 'svbk_rcp_email_on_activation', 10, 2 );
 
 /**
- * Email the site admin when a new manual payment is received.
+ * Email the site admin when a new payment is created.
  *
- * @param RCP_Member                 $member
  * @param int                        $payment_id
- * @param RCP_Payment_Gateway_Manual $gateway
+ * @param array $args
  *
  * @since  2.7.3
  * @return void
  */
-function svbk_rcp_email_admin_on_manual_payment( $member, $payment_id, $gateway ) {
+function svbk_rcp_email_new_payment( $payment_id, $args ) {
 
 	global $rcp_options;
+	
+	/**
+	 * @var RCP_Payments $rcp_payments_db
+	 */
+	global $rcp_payments_db;
+	
+	$rcp_payment  = $rcp_payments_db->get_payment( $payment_id );
+	$member = new RCP_Member( $rcp_payment->user_id );	
 
-	$template = isset($rcp_options['mandrill_template_admin_manual_payment']) ? $rcp_options['mandrill_template_admin_manual_payment'] : '';
+	$template = isset($rcp_options['mandrill_template_admin_new_payment']) ? $rcp_options['mandrill_template_admin_new_payment'] : '';
 
 	$admin_emails  = ! empty( $rcp_options['admin_notice_emails'] ) ? $rcp_options['admin_notice_emails'] : get_option('admin_email');
 	$admin_emails  = apply_filters( 'rcp_admin_notice_emails', explode( ',', $admin_emails ) );
@@ -354,14 +351,13 @@ function svbk_rcp_email_admin_on_manual_payment( $member, $payment_id, $gateway 
 	$admin_subject = sprintf( __( 'New manual payment on %s', 'rcp' ), $site_name );
 
 	if( $template && $emails->sendTemplate($template, $admin_emails, $admin_subject ) ){
-		remove_action( 'rcp_process_manual_signup', 'rcp_email_admin_on_manual_payment', 10, 3 );
-		rcp_log( sprintf( '[Mandrill Emails] New Manual Payment email sent to admin(s) regarding payment #%d. Template: %s', $payment_id, $template ) );
+		rcp_log( sprintf( '[Mandrill Emails] New Pending Payment email sent to admin(s) regarding payment #%d. Template: %s', $payment_id, $template ) );
 	} else {
-		rcp_log( sprintf( '[Mandrill Emails] New Manual payment email not sent to admin(s) - template %s is empty or invalid.', ucwords( $status ), $template ) );
+		rcp_log( sprintf( '[Mandrill Emails] New Pending payment email not sent to admin(s) - template %s is empty or invalid.', ucwords( $status ), $template ) );
 	}
 
 }
-add_action( 'rcp_process_manual_signup', 'svbk_rcp_email_admin_on_manual_payment', 9, 3 );
+add_action( 'rcp_create_payment', 'svbk_rcp_email_new_payment', 10, 2 );
 
 /**
  * Email the site admin when a new manual payment is received.
@@ -478,7 +474,8 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 				<label for="rcp_settings[mandrill_template_user_reg]"><?php _e( 'User Registration', 'svbk-mandrill-emails' ); ?></label>
 			</th>
 			<td>
-				<input class="regular-text" id="rcp_settings[mandrill_template_user_reg]" style="width: 300px;" name="rcp_settings[mandrill_template_user_reg]" value="<?php echo esc_attr( $rcp_options['mandrill_template_user_reg'] ?: '' ); ?>"/>
+				<input class="regular-text" id="rcp_settings[mandrill_template_user_reg]" style="width: 300px;" 
+				name="rcp_settings[mandrill_template_user_reg]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_user_reg'] ) ? $rcp_options['mandrill_template_user_reg'] : '' ); ?>"/>
 				<p class="description"><?php _e( 'Template sent to user at registration', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>
@@ -487,7 +484,8 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 				<label for="rcp_settings[mandrill_template_user_active]"><?php _e( 'User Active Notification', 'svbk-mandrill-emails' ); ?></label>
 			</th>
 			<td>
-				<input class="regular-text" id="rcp_settings[mandrill_template_user_active]" style="width: 300px;" name="rcp_settings[mandrill_template_user_active]" value="<?php echo esc_attr( $rcp_options['mandrill_template_user_active'] ?: '' ); ?>"/>
+				<input class="regular-text" id="rcp_settings[mandrill_template_user_active]" style="width: 300px;" 
+				name="rcp_settings[mandrill_template_user_active]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_user_active'] ) ? $rcp_options['mandrill_template_user_active'] : '' ); ?>"/>
 				<p class="description"><?php _e( 'Template sent to user when set to active', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>
@@ -496,7 +494,8 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 				<label for="rcp_settings[mandrill_template_user_cancelled]"><?php _e( 'User Cancelled Notification', 'svbk-mandrill-emails' ); ?></label>
 			</th>
 			<td>
-				<input class="regular-text" id="rcp_settings[mandrill_template_user_cancelled]" style="width: 300px;" name="rcp_settings[mandrill_template_user_cancelled]" value="<?php echo esc_attr( $rcp_options['mandrill_template_user_cancelled'] ?: '' ); ?>"/>
+				<input class="regular-text" id="rcp_settings[mandrill_template_user_cancelled]" style="width: 300px;" 
+				name="rcp_settings[mandrill_template_user_cancelled]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_user_cancelled'] )  ? $rcp_options['mandrill_template_user_cancelled'] : '' ); ?>"/>
 				<p class="description"><?php _e( 'Template sent to user when set to cancelled', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>	
@@ -505,7 +504,8 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 				<label for="rcp_settings[mandrill_template_user_expired]"><?php _e( 'User Expired Notification', 'svbk-mandrill-emails' ); ?></label>
 			</th>
 			<td>
-				<input class="regular-text" id="rcp_settings[mandrill_template_user_expired]" style="width: 300px;" name="rcp_settings[mandrill_template_user_expired]" value="<?php echo esc_attr( $rcp_options['mandrill_template_user_expired'] ?: '' ); ?>"/>
+				<input class="regular-text" id="rcp_settings[mandrill_template_user_expired]" style="width: 300px;" 
+				name="rcp_settings[mandrill_template_user_expired]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_user_expired'] ) ? $rcp_options['mandrill_template_user_expired']: '' ); ?>"/>
 				<p class="description"><?php _e( 'Template sent to user when set to expired', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>		
@@ -514,7 +514,8 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 				<label for="rcp_settings[mandrill_template_user_free]"><?php _e( 'User Free Notification', 'svbk-mandrill-emails' ); ?></label>
 			</th>
 			<td>
-				<input class="regular-text" id="rcp_settings[mandrill_template_user_free]" style="width: 300px;" name="rcp_settings[mandrill_template_user_free]" value="<?php echo esc_attr( $rcp_options['mandrill_template_user_free'] ?: '' ); ?>"/>
+				<input class="regular-text" id="rcp_settings[mandrill_template_user_free]" style="width: 300px;" 
+				name="rcp_settings[mandrill_template_user_free]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_user_free'] ) ? $rcp_options['mandrill_template_user_free'] : '' ); ?>"/>
 				<p class="description"><?php _e( 'Template sent to user when set to free', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>		
@@ -523,7 +524,8 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 				<label for="rcp_settings[mandrill_template_user_trial]"><?php _e( 'User Trial Notification', 'svbk-mandrill-emails' ); ?></label>
 			</th>
 			<td>
-				<input class="regular-text" id="rcp_settings[mandrill_template_user_trial]" style="width: 300px;" name="rcp_settings[mandrill_template_user_trial]" value="<?php echo esc_attr( $rcp_options['mandrill_template_user_trial'] ?: '' ); ?>"/>
+				<input class="regular-text" id="rcp_settings[mandrill_template_user_trial]" style="width: 300px;" 
+				name="rcp_settings[mandrill_template_user_trial]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_user_trial'] ) ? $rcp_options['mandrill_template_user_trial'] : '' ); ?>"/>
 				<p class="description"><?php _e( 'Template sent to user when set to trial', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>		
@@ -532,17 +534,9 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 				<label for="rcp_settings[mandrill_template_payment_received]"><?php _e( 'User Payment Received', 'svbk-mandrill-emails' ); ?></label>
 			</th>
 			<td>
-				<input class="regular-text" id="rcp_settings[mandrill_template_payment_received]" style="width: 300px;" name="rcp_settings[mandrill_template_payment_received]" value="<?php echo esc_attr( $rcp_options['mandrill_template_payment_received'] ?: '' ); ?>"/>
+				<input class="regular-text" id="rcp_settings[mandrill_template_payment_received]" style="width: 300px;" 
+				name="rcp_settings[mandrill_template_payment_received]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_payment_received'] ) ? $rcp_options['mandrill_template_payment_received'] : '' ); ?>"/>
 				<p class="description"><?php _e( 'Template sent to user when we receive his payment', 'svbk-mandrill-emails' ); ?></p>
-			</td>
-		</tr>		
-		<tr>
-			<th>
-				<label for="rcp_settings[mandrill_template_admin_manual_payment]"><?php _e( 'Admin Manual Payment Notification', 'svbk-mandrill-emails' ); ?></label>
-			</th>
-			<td>
-				<input class="regular-text" id="rcp_settings[mandrill_template_admin_manual_payment]" style="width: 300px;" name="rcp_settings[mandrill_template_admin_manual_payment]" value="<?php echo esc_attr( $rcp_options['mandrill_template_admin_manual_payment'] ?: '' ); ?>"/>
-				<p class="description"><?php _e( 'Template sent to admin when a manual payment is created and needs review', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>		
 		<tr>
@@ -550,17 +544,19 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 				<label for="rcp_settings[mandrill_template_user_manual_payment]"><?php _e( 'User Manual Payment Info', 'svbk-mandrill-emails' ); ?></label>
 			</th>
 			<td>
-				<input class="regular-text" id="rcp_settings[mandrill_template_user_manual_payment]" style="width: 300px;" name="rcp_settings[mandrill_template_user_manual_payment]" value="<?php echo esc_attr( $rcp_options['mandrill_template_user_manual_payment'] ?: '' ); ?>"/>
+				<input class="regular-text" id="rcp_settings[mandrill_template_user_manual_payment]" style="width: 300px;" 
+				name="rcp_settings[mandrill_template_user_manual_payment]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_user_manual_payment'] ) ? $rcp_options['mandrill_template_user_manual_payment'] : '' ); ?>"/>
 				<p class="description"><?php _e( 'Template sent to user with payment info', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>
 		<tr>
 			<th>
-				<label for="rcp_settings[mandrill_template_admin_user_reg]"><?php _e( 'Admin User Registration Notification', 'svbk-mandrill-emails' ); ?></label>
+				<label for="rcp_settings[mandrill_template_admin_new_payment]"><?php _e( 'Admin New Payment/Registration Notification', 'svbk-mandrill-emails' ); ?></label>
 			</th>
 			<td>
-				<input class="regular-text" id="rcp_settings[mandrill_template_admin_user_reg]" style="width: 300px;" name="rcp_settings[mandrill_template_admin_user_reg]" value="<?php echo esc_attr( $rcp_options['mandrill_template_admin_user_reg'] ?: '' ); ?>"/>
-				<p class="description"><?php _e( 'Template sent to admin at user registration', 'svbk-mandrill-emails' ); ?></p>
+				<input class="regular-text" id="rcp_settings[mandrill_template_admin_new_payment]" style="width: 300px;" 
+					name="rcp_settings[mandrill_template_admin_new_payment]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_admin_new_payment'] ) ? $rcp_options['mandrill_template_admin_new_payment']: '' ); ?>"/>
+				<p class="description"><?php _e( 'Template sent to admin at user registration, or when a new payment is created', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>		
 	</table>	

@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Mandrill Transactional Emails\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-14 14:39+0000\n"
-"PO-Revision-Date: 2017-09-14 14:46+0000\n"
+"POT-Creation-Date: 2017-09-15 08:31+0000\n"
+"PO-Revision-Date: 2017-09-15 08:33+0000\n"
 "Last-Translator: silverbackstudio <webmaster@silverbackstudio.it>\n"
 "Language-Team: Italian\n"
 "Language: it-IT\n"
@@ -13,104 +13,94 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco - https://localise.biz/"
 
-#: mandrill-email.php:473
+#: mandrill-email.php:566
+msgid "Admin New Payment/Registration Notification"
+msgstr "Notifica nuovo pagamento/registrazione all'admin"
+
+#: mandrill-email.php:571
+msgid ""
+"Template sent to admin at user registration, or when a new payment is created"
+msgstr ""
+"Template inviato all'admin quando un nuovo pagamento viene creato (nuovo "
+"utente si registra)"
+
+#: mandrill-email.php:481
 msgid "Mandrill Templates"
 msgstr "Template di Mandrill"
 
-#: mandrill-email.php:478
+#: mandrill-email.php:486
 msgid "User Registration"
 msgstr "Registrazione utente"
 
-#: mandrill-email.php:482
+#: mandrill-email.php:491
 msgid "Template sent to user at registration"
 msgstr "Template per la mail inviata all'utente quando si registra "
 
-#: mandrill-email.php:487
+#: mandrill-email.php:496
 msgid "User Active Notification"
 msgstr "Template Notifica Account Attivo"
 
-#: mandrill-email.php:491
+#: mandrill-email.php:501
 msgid "Template sent to user when set to active"
 msgstr ""
 "Template inviato all'utente quando il suo account è stato impostato su attivo"
 
-#: mandrill-email.php:496
+#: mandrill-email.php:506
 msgid "User Cancelled Notification"
 msgstr "Template Notifica Account Cancellato"
 
-#: mandrill-email.php:500
+#: mandrill-email.php:511
 msgid "Template sent to user when set to cancelled"
 msgstr ""
 "Template inviato all'utente quando il suo account è stato impostato su "
 "cancellato"
 
-#: mandrill-email.php:505
+#: mandrill-email.php:516
 msgid "User Expired Notification"
 msgstr "Template Notifica Account Scaduto"
 
-#: mandrill-email.php:509
+#: mandrill-email.php:521
 msgid "Template sent to user when set to expired"
 msgstr ""
 "Template inviato all'utente quando il suo account è stato impostato su "
 "scaduto"
 
-#: mandrill-email.php:514
+#: mandrill-email.php:526
 msgid "User Free Notification"
 msgstr "Template Notifica Account Gratis"
 
-#: mandrill-email.php:518
+#: mandrill-email.php:531
 msgid "Template sent to user when set to free"
 msgstr ""
 "Template inviato all'utente quando il suo account è stato impostato su gratis"
 
-#: mandrill-email.php:523
+#: mandrill-email.php:536
 msgid "User Trial Notification"
 msgstr "Template Notifica Account di Prova"
 
-#: mandrill-email.php:527
+#: mandrill-email.php:541
 msgid "Template sent to user when set to trial"
 msgstr ""
 "Template inviato all'utente quando il suo account è stato impostato su in "
 "prova"
 
-#: mandrill-email.php:532
+#: mandrill-email.php:546
 msgid "User Payment Received"
 msgstr "Pagamento ricevuto"
 
-#: mandrill-email.php:536
+#: mandrill-email.php:551
 msgid "Template sent to user when we receive his payment"
 msgstr "Template inviato all'utente quando il suo pagamento è stato confermato"
 
-#: mandrill-email.php:541
-msgid "Admin Manual Payment Notification"
-msgstr "Notifica Amministratore pagamento manuale"
-
-#: mandrill-email.php:545
-msgid ""
-"Template sent to admin when a manual payment is created and needs review"
-msgstr ""
-"Template di notifica inviato all'amministratore quando é stato richiesto un "
-"nuovo pagamento manuale (bonifico, contante, etc)"
-
-#: mandrill-email.php:550
+#: mandrill-email.php:556
 msgid "User Manual Payment Info"
 msgstr "Informazioni per il pagamento manuale"
 
-#: mandrill-email.php:554
+#: mandrill-email.php:561
 msgid "Template sent to user with payment info"
 msgstr ""
 "Template inviato all'utente con la istruzioni per il pagamento manuale "
 "(bonifico, contante, etc)"
-
-#: mandrill-email.php:559
-msgid "Admin User Registration Notification"
-msgstr "Notifica all'amministratore registrazione di un nuovo utente"
-
-#: mandrill-email.php:563
-msgid "Template sent to admin at user registration"
-msgstr ""
-"Template di notifica inviato all'amministratore per la registrazione di un "
-"nuovo utente"
 
 #. Name of the plugin
 msgid "Mandrill Transactional Emails"
