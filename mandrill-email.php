@@ -609,7 +609,7 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 			<td>
 				<input class="regular-text" id="rcp_settings[mandrill_template_payment_abandoned]" style="width: 300px;" 
 					name="rcp_settings[mandrill_template_payment_abandoned]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_payment_abandoned'] ) ? $rcp_options['mandrill_template_payment_abandoned']: '' ); ?>"/>
-				<p class="description"><?php _e( 'Template sent to admin at user registration, or when a new payment is created', 'svbk-mandrill-emails' ); ?></p>
+				<p class="description"><?php _e( 'Template sent to user when his payment is set to abandoned', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>		
 	</table>	

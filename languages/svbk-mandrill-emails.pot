@@ -3,7 +3,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-09-15 08:31+0000\n"
+"POT-Creation-Date: 2017-09-19 16:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: \n"
@@ -14,81 +14,89 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Loco - https://localise.biz/"
 
-#: mandrill-email.php:481
+#: mandrill-email.php:512
 msgid "Mandrill Templates"
 msgstr ""
 
-#: mandrill-email.php:486
+#: mandrill-email.php:517
 msgid "User Registration"
 msgstr ""
 
-#: mandrill-email.php:491
+#: mandrill-email.php:522
 msgid "Template sent to user at registration"
 msgstr ""
 
-#: mandrill-email.php:496
+#: mandrill-email.php:527
 msgid "User Active Notification"
 msgstr ""
 
-#: mandrill-email.php:501
+#: mandrill-email.php:532
 msgid "Template sent to user when set to active"
 msgstr ""
 
-#: mandrill-email.php:506
+#: mandrill-email.php:537
 msgid "User Cancelled Notification"
 msgstr ""
 
-#: mandrill-email.php:511
+#: mandrill-email.php:542
 msgid "Template sent to user when set to cancelled"
 msgstr ""
 
-#: mandrill-email.php:516
+#: mandrill-email.php:547
 msgid "User Expired Notification"
 msgstr ""
 
-#: mandrill-email.php:521
+#: mandrill-email.php:552
 msgid "Template sent to user when set to expired"
 msgstr ""
 
-#: mandrill-email.php:526
+#: mandrill-email.php:557
 msgid "User Free Notification"
 msgstr ""
 
-#: mandrill-email.php:531
+#: mandrill-email.php:562
 msgid "Template sent to user when set to free"
 msgstr ""
 
-#: mandrill-email.php:536
+#: mandrill-email.php:567
 msgid "User Trial Notification"
 msgstr ""
 
-#: mandrill-email.php:541
+#: mandrill-email.php:572
 msgid "Template sent to user when set to trial"
 msgstr ""
 
-#: mandrill-email.php:546
+#: mandrill-email.php:577
 msgid "User Payment Received"
 msgstr ""
 
-#: mandrill-email.php:551
+#: mandrill-email.php:582
 msgid "Template sent to user when we receive his payment"
 msgstr ""
 
-#: mandrill-email.php:556
+#: mandrill-email.php:587
 msgid "User Manual Payment Info"
 msgstr ""
 
-#: mandrill-email.php:561
+#: mandrill-email.php:592
 msgid "Template sent to user with payment info"
 msgstr ""
 
-#: mandrill-email.php:566
+#: mandrill-email.php:597
 msgid "Admin New Payment/Registration Notification"
 msgstr ""
 
-#: mandrill-email.php:571
+#: mandrill-email.php:602
 msgid ""
 "Template sent to admin at user registration, or when a new payment is created"
+msgstr ""
+
+#: mandrill-email.php:607
+msgid "User Payment Abandoned Notification"
+msgstr ""
+
+#: mandrill-email.php:612
+msgid "Template sent to user when his payment is set to abandoned"
 msgstr ""
 
 #. Name of the plugin
