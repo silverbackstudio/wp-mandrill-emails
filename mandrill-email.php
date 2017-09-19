@@ -454,6 +454,49 @@ function svbk_rcp_email_payment_received( $payment_id ) {
 add_action( 'rcp_update_payment_status_complete', 'svbk_rcp_email_payment_received', 99 );
 
 /**
+ * Triggers an email to the member when a payment is abandoned.
+ *
+ * @param int    $payment_id ID of the payment being completed.
+ *
+ * @access  public
+ * @since   2.3
+ * @return  void
+ */
+function svbk_rcp_email_payment_abandoned( $payment_id ) {
+
+	global $rcp_options;
+
+	$template = isset($rcp_options['mandrill_template_payment_abandoned']) ? $rcp_options['mandrill_template_payment_abandoned'] : '';
+
+	/**
+	 * @var RCP_Payments $rcp_payments_db
+	 */
+	global $rcp_payments_db;
+
+	$payment = $rcp_payments_db->get_payment( $payment_id );
+
+	$user_info = get_userdata( $payment->user_id );
+
+	if( ! $user_info ) {
+		return;
+	}
+
+	$payment = (array) $payment;
+
+	$emails = new RCP_Mandrill_Emails;
+	$emails->member_id = $payment['user_id'];
+	$emails->payment_id = $payment_id;
+
+	if( $template && $emails->sendTemplate( $template, $user_info->user_email ) ){
+		rcp_log( sprintf( '[Mandrill Emails] Payment Abandoned email sent to user #%d. Template: %s', $user_info->ID, $template  ) );		
+	} else {
+		rcp_log( sprintf( '[Mandrill Emails] Payment Abandoned email not sent to user #%d. Template: %s', $user_info->ID, $template ) );		
+	}
+
+}
+add_action( 'rcp_update_payment_status_abandoned', 'svbk_rcp_email_payment_abandoned', 99 );
+
+/**
  * Print the options
  *
  * @param array $rcp_options  RCP_options array.
@@ -556,6 +599,16 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 			<td>
 				<input class="regular-text" id="rcp_settings[mandrill_template_admin_new_payment]" style="width: 300px;" 
 					name="rcp_settings[mandrill_template_admin_new_payment]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_admin_new_payment'] ) ? $rcp_options['mandrill_template_admin_new_payment']: '' ); ?>"/>
+				<p class="description"><?php _e( 'Template sent to admin at user registration, or when a new payment is created', 'svbk-mandrill-emails' ); ?></p>
+			</td>
+		</tr>
+		<tr>
+			<th>
+				<label for="rcp_settings[mandrill_template_payment_abandoned]"><?php _e( 'User Payment Abandoned Notification', 'svbk-mandrill-emails' ); ?></label>
+			</th>
+			<td>
+				<input class="regular-text" id="rcp_settings[mandrill_template_payment_abandoned]" style="width: 300px;" 
+					name="rcp_settings[mandrill_template_payment_abandoned]" value="<?php echo esc_attr( isset( $rcp_options['mandrill_template_payment_abandoned'] ) ? $rcp_options['mandrill_template_payment_abandoned']: '' ); ?>"/>
 				<p class="description"><?php _e( 'Template sent to admin at user registration, or when a new payment is created', 'svbk-mandrill-emails' ); ?></p>
 			</td>
 		</tr>		
