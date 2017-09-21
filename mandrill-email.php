@@ -617,3 +617,20 @@ function svbk_rcp_email_settings( $rcp_options ){ ?>
 <?php }
 
 add_action('rcp_email_settings', 'svbk_rcp_email_settings');
+
+
+add_filter( 'retrieve_password_message', 'svbk_rcp_patch_password_reset_email', 10, 4 );
+
+function svbk_rcp_patch_password_reset_email($message, $key, $user_login, $user_data) {
+	
+	$message = __('Someone requested that the password be reset for the following account:', 'rcp') . "\r\n\r\n";
+	$message .= network_home_url( '/' ) . "\r\n\r\n";
+	$message .= sprintf(__('Username: %s', 'rcp'), $user_login) . "\r\n\r\n";
+	$message .= __('If this was a mistake, just ignore this email and nothing will happen.', 'rcp') . "\r\n\r\n";
+	$message .= __('To reset your password, visit the following address:', 'rcp') . "\r\n\r\n";
+	
+	$reset_url = esc_url_raw( add_query_arg( array( 'rcp_action' => 'lostpassword_reset', 'key' => $key, 'login' => rawurlencode( $user_login ) ), $_POST['rcp_redirect'] ) );
+	$message .= '<a href="' . esc_attr($reset_url) . '">' . esc_html($reset_url) . '</a>' . "\r\n";	
+	
+	return $message;
+}
