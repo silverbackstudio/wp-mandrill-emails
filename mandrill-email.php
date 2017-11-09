@@ -15,6 +15,10 @@ Author URI: http://www.silverbackstudio.it/
 Text Domain: svbk-mandrill-emails
 */
 
+if( !class_exists('RCP_Emails') ){
+	return;
+}
+
 require __DIR__ . '/src/RCP_Emails.php';
 
 use Svbk\WP\Helpers\Mailing\Mandrill;
