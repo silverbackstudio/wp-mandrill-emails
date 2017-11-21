@@ -9,11 +9,18 @@
             "email": "b.meniconi@silverbackstudio.it"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/restrictcontentpro/restrict-content-pro"
+        }
+    ],
     "require": {
         "php": ">=5.6",
         "psr/log": "^1.0",        
-        "restrictcontentpro/restrict-content-pro": "^2.8.6",
-        "monolog/monolog": "^1.23" 
+        "monolog/monolog": "^1.23",
+        "ext-mailparse": ">=2.1.0",
+        "restrictcontentpro/restrict-content-pro": "^2.8.6"
     },
     "require-dev": {
         "wimg/php-compatibility": "^7.1",
